@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#17152b">
   <meta name="description" content="Ruleta aleatoria para elegir un ganador.">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icon.svg?v=4" type="image/svg+xml">
   <title>Ruleta</title>
   <style>
     :root {
@@ -616,7 +616,11 @@ Jorge</textarea>
       spinButton.addEventListener('click', spin);
       document.getElementById('close').addEventListener('click', () => dialog.close());
       window.addEventListener('resize', resizeCanvas);
-      if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => { }));
+      if ('serviceWorker' in navigator) window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+          .then(registration => registration.update())
+          .catch(() => { });
+      });
       loadSavedData();
       updateWheel(); resizeCanvas();
     })();
