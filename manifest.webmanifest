@@ -1,0 +1,14 @@
+{
+  "name": "Ruleta de nombres",
+  "short_name": "Ruleta",
+  "description": "Ruleta aleatoria para elegir un ganador.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#11101d",
+  "theme_color": "#17152b",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
