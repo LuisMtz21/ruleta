@@ -32,6 +32,14 @@ Proyecto desarrollado utilizando tecnologías web y desplegado mediante Cloudfla
 - JavaScript
 - Cloudflare Pages
 
+## 🗂️ Estructura del proyecto
+
+- `index.html`: estructura y contenido de la página.
+- `styles.css`: estilos y diseño adaptable.
+- `app.js`: lógica de la ruleta, participantes y sus historiales.
+- `manifest.webmanifest`: metadatos de la aplicación instalable.
+- `sw.js`: caché y funcionamiento sin conexión.
+
 ## 💾 Almacenamiento
 
 Los nombres utilizados anteriormente se guardan localmente en el dispositivo del usuario, permitiendo reutilizarlos en futuras sesiones.
