@@ -1,5 +1,5 @@
 {
-  "name": "Ruleta de nombres",
+  "name": "Ruleta",
   "short_name": "Ruleta",
   "description": "Ruleta aleatoria para elegir un ganador.",
   "start_url": "./",
