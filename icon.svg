@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <rect width="512" height="512" rx="112" fill="#17152b"/>
-<circle cx="256" cy="270" r="185" fill="#8b5cf6" stroke="#fff" stroke-width="18"/>
-<path d="M256 85v185L96 430z" fill="#0ea5e9"/>
-<path d="M256 270V85l160 345z" fill="#ec4899"/>
-<path d="M256 270l160 160H96z" fill="#f59e0b"/>
-<circle cx="256" cy="270" r="30" fill="#fff"/>
-<path d="M235 42h42l-21 58z" fill="#fff"/>
+<circle cx="256" cy="285" r="183" fill="#29213f" stroke="#fff" stroke-width="12"/>
+<path d="M256 285V102A183 183 0 0 1 385.4 155.6Z" fill="#8b5cf6" stroke="#fff" stroke-width="4"/>
+<path d="M256 285l129.4-129.4A183 183 0 0 1 439 285Z" fill="#0ea5e9" stroke="#fff" stroke-width="4"/>
+<path d="M256 285h183a183 183 0 0 1-53.6 129.4Z" fill="#ec4899" stroke="#fff" stroke-width="4"/>
+<path d="M256 285l129.4 129.4A183 183 0 0 1 256 468Z" fill="#f59e0b" stroke="#fff" stroke-width="4"/>
+<path d="M256 285v183a183 183 0 0 1-129.4-53.6Z" fill="#10b981" stroke="#fff" stroke-width="4"/>
+<path d="M256 285 126.6 414.4A183 183 0 0 1 73 285Z" fill="#6366f1" stroke="#fff" stroke-width="4"/>
+<path d="M256 285H73a183 183 0 0 1 53.6-129.4Z" fill="#ef4444" stroke="#fff" stroke-width="4"/>
+<path d="M256 285 126.6 155.6A183 183 0 0 1 256 102Z" fill="#14b8a6" stroke="#fff" stroke-width="4"/>
+<circle cx="256" cy="285" r="27" fill="#fff" stroke="#29213f" stroke-width="8"/>
+<path d="M226 48h60l-30 65z" fill="#fff" stroke="#29213f" stroke-width="8" stroke-linejoin="round"/>
 </svg>

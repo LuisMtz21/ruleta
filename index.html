@@ -168,6 +168,11 @@
       margin: 14px 0 0
     }
 
+    .winner-history-button {
+      display: block;
+      margin: 12px auto 0
+    }
+
     .history {
       margin-top: 20px;
       padding-top: 16px;
@@ -213,6 +218,63 @@
       color: var(--muted);
       font-size: .88rem;
       margin: 0
+    }
+
+    .history-dialog {
+      width: min(92%, 480px);
+      max-height: 82vh;
+      overflow: hidden;
+      padding: 24px;
+      text-align: left
+    }
+
+    .history-dialog h2 {
+      margin: 0;
+      font-size: 1.25rem
+    }
+
+    .winner-history-list {
+      max-height: min(48vh, 360px);
+      overflow-y: auto;
+      list-style: none;
+      margin: 18px 0;
+      padding: 0
+    }
+
+    .winner-record {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-wrap: anywhere;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .winner-record:last-child {
+      border-bottom: 0
+    }
+
+    .winner-record time {
+      color: var(--muted);
+      font-size: .88rem
+    }
+
+    .winner-history-empty {
+      color: var(--muted);
+      margin: 0;
+      padding: 24px 0;
+      text-align: center
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 10px
+    }
+
+    .dialog-actions .secondary,
+    .dialog-actions .close {
+      flex: 1;
+      width: auto
     }
 
     dialog {
@@ -296,6 +358,8 @@
           <canvas id="wheel" aria-label="Ruleta de participantes"></canvas>
         </div>
         <button class="spin" id="spin">GIRAR RULETA</button>
+        <button class="secondary winner-history-button" id="openWinnerHistory" type="button" aria-haspopup="dialog"
+          aria-controls="winnerHistoryDialog">Historial de ganadores</button>
       </div>
       <div class="panel">
         <label for="names">Nombres de los participantes</label>
@@ -308,7 +372,6 @@ Sofía
 Jorge</textarea>
         <p class="hint">Cada salto de línea (Enter) agrega un espacio en la ruleta. Las líneas vacías se ignoran.</p>
         <div class="actions">
-          <button class="secondary" id="update">Actualizar ruleta</button>
           <button class="secondary" id="clear">Limpiar nombres</button>
         </div>
         <p class="count" id="count">6 participantes</p>
@@ -331,6 +394,17 @@ Jorge</textarea>
     <button class="close" id="close">Continuar</button>
   </dialog>
 
+  <dialog id="winnerHistoryDialog" class="history-dialog" aria-labelledby="winnerHistoryTitle">
+    <div class="history-head">
+      <h2 id="winnerHistoryTitle">Historial de ganadores</h2>
+    </div>
+    <ul class="winner-history-list" id="winnerHistoryList"></ul>
+    <div class="dialog-actions">
+      <button class="secondary" id="clearWinnerHistory" type="button">Borrar historial</button>
+      <button class="close" id="closeWinnerHistory" type="button">Cerrar</button>
+    </div>
+  </dialog>
+
   <script>
     (() => {
       const canvas = document.getElementById('wheel');
@@ -341,13 +415,18 @@ Jorge</textarea>
       const dialog = document.getElementById('result');
       const winnerText = document.getElementById('winner');
       const historyList = document.getElementById('historyList');
+      const winnerHistoryDialog = document.getElementById('winnerHistoryDialog');
+      const winnerHistoryList = document.getElementById('winnerHistoryList');
+      const clearWinnerHistoryButton = document.getElementById('clearWinnerHistory');
       const CURRENT_KEY = 'ruleta_nombres_actuales_v1';
       const HISTORY_KEY = 'ruleta_nombres_historial_v1';
+      const WINNER_HISTORY_KEY = 'ruleta_ganadores_v1';
       const colors = ['#8b5cf6', '#0ea5e9', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#ef4444', '#14b8a6'];
       let names = [];
       let rotation = 0;
       let spinning = false;
       let history = [];
+      let winnerHistory = [];
 
       function getNames() {
         return input.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
@@ -392,14 +471,50 @@ Jorge</textarea>
           historyList.appendChild(button);
         });
       }
+      function renderWinnerHistory() {
+        winnerHistoryList.replaceChildren();
+        clearWinnerHistoryButton.disabled = winnerHistory.length === 0;
+        if (!winnerHistory.length) {
+          const empty = document.createElement('li');
+          empty.className = 'winner-history-empty';
+          empty.textContent = 'Todavía no hay ganadores registrados.';
+          winnerHistoryList.appendChild(empty);
+          return;
+        }
+        winnerHistory.forEach(record => {
+          const item = document.createElement('li');
+          item.className = 'winner-record';
+          const name = document.createElement('strong');
+          name.textContent = record.name;
+          const date = document.createElement('time');
+          date.dateTime = record.timestamp;
+          date.textContent = new Date(record.timestamp).toLocaleString('es-MX', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          });
+          item.append(name, date);
+          winnerHistoryList.appendChild(item);
+        });
+      }
+      function addWinnerToHistory(name) {
+        winnerHistory.unshift({ name, timestamp: new Date().toISOString() });
+        try { localStorage.setItem(WINNER_HISTORY_KEY, JSON.stringify(winnerHistory)); } catch (e) { }
+        renderWinnerHistory();
+      }
       function loadSavedData() {
         try {
           const savedCurrent = localStorage.getItem(CURRENT_KEY);
           if (savedCurrent !== null) input.value = savedCurrent;
           const savedHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
           if (Array.isArray(savedHistory)) history = savedHistory.filter(x => typeof x === 'string');
+          const savedWinnerHistory = JSON.parse(localStorage.getItem(WINNER_HISTORY_KEY) || '[]');
+          if (Array.isArray(savedWinnerHistory)) {
+            winnerHistory = savedWinnerHistory.filter(record => record && typeof record.name === 'string' &&
+              typeof record.timestamp === 'string' && Number.isFinite(Date.parse(record.timestamp)));
+          }
         } catch (e) { }
         renderHistory();
+        renderWinnerHistory();
       }
       function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
@@ -453,8 +568,11 @@ Jorge</textarea>
         spinning = true; spinButton.disabled = true;
         const winnerIndex = Math.floor(Math.random() * names.length);
         const arc = Math.PI * 2 / names.length;
-        // El puntero está arriba; centra el sector ganador bajo el puntero.
-        const targetMod = ((-(winnerIndex * arc + arc / 2)) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+        const slotsPerName = Math.max(1, Math.floor(1000 / names.length));
+        const slotIndex = Math.floor(Math.random() * slotsPerName);
+        const positionInSlot = Math.random();
+        const positionInSector = (slotIndex + positionInSlot) / slotsPerName;
+        const targetMod = ((-(winnerIndex * arc + arc * positionInSector)) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
         const currentMod = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
         const delta = ((targetMod - currentMod) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
         const start = rotation;
@@ -470,12 +588,12 @@ Jorge</textarea>
             rotation = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             spinning = false; spinButton.disabled = false;
             winnerText.textContent = names[winnerIndex];
+            addWinnerToHistory(names[winnerIndex]);
             dialog.showModal();
           }
         }
         requestAnimationFrame(frame);
       }
-      document.getElementById('update').addEventListener('click', () => { updateWheel(); saveNamesToHistory(getNames()); });
       document.getElementById('clear').addEventListener('click', () => { if (!spinning) { input.value = ''; updateWheel(); } });
       document.getElementById('clearHistory').addEventListener('click', () => {
         if (confirm('¿Deseas borrar todos los nombres guardados?')) {
@@ -484,6 +602,15 @@ Jorge</textarea>
           renderHistory();
         }
       });
+      document.getElementById('openWinnerHistory').addEventListener('click', () => winnerHistoryDialog.showModal());
+      document.getElementById('clearWinnerHistory').addEventListener('click', () => {
+        if (confirm('¿Deseas borrar el historial de ganadores?')) {
+          winnerHistory = [];
+          try { localStorage.removeItem(WINNER_HISTORY_KEY); } catch (e) { }
+          renderWinnerHistory();
+        }
+      });
+      document.getElementById('closeWinnerHistory').addEventListener('click', () => winnerHistoryDialog.close());
       input.addEventListener('input', updateWheel);
       input.addEventListener('blur', () => saveNamesToHistory(getNames()));
       spinButton.addEventListener('click', spin);
